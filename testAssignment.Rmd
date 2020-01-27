@@ -1,7 +1,7 @@
 ---
 title: "Test statistical assignment"
-author: "Alexey Bessudnov"
-date: "22 January 2020"
+author: "Eliot Barrett-Holman"
+date: "25 January 2020"
 output: github_document
 ---
 
@@ -25,7 +25,7 @@ First, we need to read the data into R. For this assignment, I ask you to use da
 ```{r}
 library(tidyverse)
 # This attaches the tidyverse package. If you get an error here you need to install the package first. 
-Data <- read_tsv("")
+Data <- read_tsv("i_youth.tab")
 # You need to add between the quotation marks a full path to the required file on your computer.
 ```
 
@@ -37,7 +37,13 @@ Tabulate three variables: children's gender, age (please use derived variables) 
 
 ```{r}
 # add your code here
+table(Data$i_ypsex)
+# 1411 males, 1410 females
 
+table(Data$i_age_dv)
+
+
+table(Data$i_ypsocweb)
 ```
 
 ## Recode variables (10 points)
@@ -46,6 +52,18 @@ We want to create a new binary variable for having an account on social media so
 
 ```{r}
 # add your code here
+
+Data$binaryaccount <- NA
+Data$binaryaccount[Data$i_ypsocweb == 1] <- 1
+Data$binaryaccount[Data$i_ypsocweb == 2] <- 0
+Data$binaryaccount[Data$i_ypsocweb == -9] <- NA
+table(is.na(Data$binaryaccount))
+
+
+Data$gender <- NA
+Data$gender[Data$i_ypsex == 1] <- "male"
+Data$gender[Data$i_ypsex == 2 ] <- "female"
+table(Data$gender)
 ```
 
 ## Calculate means (10 points)
@@ -54,11 +72,21 @@ Produce code that calculates probabilities of having an account on social media 
 
 ```{r}
 # add your code here
+
+tapply(Data$binaryaccount, Data$gender, mean, na.rm=TRUE)
+
+tapply(Data$binaryaccount, Data$i_age_dv, mean, na.rm=TRUE)
+
 ```
 
 ## Write short interpretation (10 points)
 
 Write two or three sentences interpreting your findings above.
+
+Here we find that female youths are more likely to have a social media account than their male counterparts with an 84% probability compared to a male's 78% probability
+Moroever, we find that the probability of having a social media account increases with age, with each of the nine 16 year-olds having an account. 
+The 0% probability of a nine year old having a social media account can be largely ignored here as we only have one in the sample
+The gaps between ages 10-11 and 11-12 therefore are the most significant with largest increases.
 
 ## Visualise results (20 points)
 
@@ -66,7 +94,14 @@ Create a statistical graph (only one, but it can be faceted) illustrating your r
 
 ```{r}
 # add your code here
+
+ggplot(data = Data, aes(i_age_dv, y = mean(binaryaccount, na.rm = TRUE), fill = binaryaccount )) + geom_bar(position = "fill", stat = "identity" ) +facet_wrap(~gender) + labs(title = "Social Media usage by age and gender") + ylab("Proporiton") + xlab("Age")
+
 ```
+Couldn't figure out how to get the proportions to work 
+know you could just plot(tapply(Data$binaryaccount, Data$i_age_dv, mean, na.rm=TRUE)) but then you wouldn't have it faceted for gender
+
+
 
 ## Conclusion
 
